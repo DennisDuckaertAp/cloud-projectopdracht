@@ -1,0 +1,25 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Login to Azure VM and run docker-compose up
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.AZURE_VM_IP }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_IP }} << EOF
+            cd /path/to/your/docker-compose/directory
+            docker-compose up -d
+          EOF
