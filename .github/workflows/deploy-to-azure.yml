@@ -14,12 +14,24 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Login to Azure VM and run docker-compose up
+
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.AZURE_VM_IP }}
+        username: ${{ secrets.AZURE_VM_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "."
+        target: " ~/docker"
+
+    - name: Execute commands on the server
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.AZURE_VM_IP }}
+        username: ${{ secrets.AZURE_VM_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_IP }} << EOF
-            cd /path/to/your/docker-compose/directory
-            docker-compose up -d
+          cd  ~/docker
+          docker-compose up -d
           EOF
+
+  
